@@ -11,7 +11,7 @@ To prepare the environment,
 
 1. Clone this repository. 
 	```
-	git clone https://github.com/YouyuChen0207/DashGaussian
+	git clone https://github.com/YouyuChen0207/DashGaussian.git
 	```
 2. Follow [3DGS](https://github.com/graphdeco-inria/gaussian-splatting) to install dependencies. 
 
