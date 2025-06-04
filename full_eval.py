@@ -44,20 +44,10 @@ MAX_N_GAUSSIAN_FAST = {
     "truck": 1985466, 
 }
 
-# mipnerf360_outdoor_scenes = ["bicycle", "flowers", "garden", "stump", "treehill"]
-# mipnerf360_indoor_scenes = ["room", "counter", "kitchen", "bonsai"]
-# tanks_and_temples_scenes = ["truck", "train"]
-# deep_blending_scenes = ["drjohnson", "playroom"]
-
-# mipnerf360_outdoor_scenes = ["flowers", "garden", "bicycle", "treehill"]
-# mipnerf360_indoor_scenes = ["room", "counter", "kitchen", "bonsai"]
-# tanks_and_temples_scenes = ["truck", "train"]
-# deep_blending_scenes = ["drjohnson", "playroom"]
-
-mipnerf360_outdoor_scenes = ["bicycle"]
-mipnerf360_indoor_scenes = []
-tanks_and_temples_scenes = []
-deep_blending_scenes = []
+mipnerf360_outdoor_scenes = ["bicycle", "flowers", "garden", "stump", "treehill"]
+mipnerf360_indoor_scenes = ["room", "counter", "kitchen", "bonsai"]
+tanks_and_temples_scenes = ["truck", "train"]
+deep_blending_scenes = ["drjohnson", "playroom"]
 
 parser = ArgumentParser(description="Full evaluation script parameters")
 parser.add_argument("--skip_training", action="store_true")
@@ -71,9 +61,6 @@ parser.add_argument("--aa", action="store_true")
 parser.add_argument("--gpu", required=True, type=str)
 parser.add_argument("--dash", action="store_true")
 parser.add_argument("--preset_upperbound", action="store_true")
-
-
-
 
 args, _ = parser.parse_known_args()
 
@@ -89,7 +76,7 @@ if not args.skip_training or not args.skip_rendering:
     parser.add_argument("--deepblending", "-db", required=True, type=str)
     args = parser.parse_args()
 if not args.skip_training:
-    common_args = " --disable_viewer --eval " #  --quiet
+    common_args = " --disable_viewer --eval --quiet "
     
     if args.aa:
         common_args += " --antialiasing "
@@ -108,7 +95,6 @@ if not args.skip_training:
         common_args += " --densify_mode freq --resolution_mode freq --densify_until_iter 27000 "
         max_n_gs_dict = MAX_N_GAUSSIAN if not args.fast else MAX_N_GAUSSIAN_FAST
 
-    # start_time = time.time()
     scene_args = ""
     for scene in mipnerf360_outdoor_scenes:
         source = args.mipnerf360 + "/" + scene
@@ -120,26 +106,19 @@ if not args.skip_training:
         if args.dash and args.preset_upperbound:
             scene_args = " --max_n_gaussian {} ".format(max_n_gs_dict[scene])
         os.system("CUDA_VISIBLE_DEVICE={} ".format(args.gpu) + f"python {file_name} -s " + source + " -i images_2 -m " + args.output_path + "/" + scene + common_args + scene_args)
-    # m360_timing = (time.time() - start_time)/60.0
 
-    # start_time = time.time()
     for scene in tanks_and_temples_scenes:
         source = args.tanksandtemples + "/" + scene
         if args.dash and args.preset_upperbound:
             scene_args = " --max_n_gaussian {} ".format(max_n_gs_dict[scene])
         os.system("CUDA_VISIBLE_DEVICE={} ".format(args.gpu) + f"python {file_name} -s " + source + " -m " + args.output_path + "/" + scene + common_args + scene_args)
-    # tandt_timing = (time.time() - start_time)/60.0
 
-    # start_time = time.time()
     for scene in deep_blending_scenes:
         source = args.deepblending + "/" + scene
         if args.dash and args.preset_upperbound:
             scene_args = " --max_n_gaussian {} ".format(max_n_gs_dict[scene])
         os.system("CUDA_VISIBLE_DEVICE={} ".format(args.gpu) + f"python {file_name} -s " + source + " -m " + args.output_path + "/" + scene + common_args + scene_args)
-    # db_timing = (time.time() - start_time)/60.0
 
-# with open(os.path.join(args.output_path,"timing.txt"), 'w') as file:
-#     file.write(f"m360: {m360_timing} minutes \n tandt: {tandt_timing} minutes \n db: {db_timing} minutes\n")
 
 if not args.skip_rendering:
     all_sources = []
@@ -160,7 +139,6 @@ if not args.skip_rendering:
         common_args += " --train_test_exp "
 
     for scene, source in zip(all_scenes, all_sources):
-        # os.system("python render.py --iteration 7000 -s " + source + " -m " + args.output_path + "/" + scene + common_args)
         os.system("CUDA_VISIBLE_DEVICE={} ".format(args.gpu) + "python render.py --iteration 30000 -s " + source + " -m " + args.output_path + "/" + scene + common_args)
 
 if not args.skip_metrics:
