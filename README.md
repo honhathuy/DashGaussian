@@ -24,7 +24,7 @@ To prepare the environment,
 ## Run DashGaussian
 
 ### Running Comand
-Set the data paths in ```scripts/full_eval.sh``` to your local data folder, ans run.
+Set the data paths in ```scripts/full_eval.sh``` to your local data folder, and run.
 ```
 bash scripts/full_eval.sh
 ```
