@@ -18,7 +18,7 @@ To prepare the environment,
 	Please notice, that the ```diff-gaussian-rasterization``` module contained in this repository has already been switched to the ```3dgs-accel``` branch for efficient backward computation.
 3. Install our Lanczos-resampling implementation for downsampling images. 
 	```
-	pip install -e submodules/FastLanczos
+	pip install submodules/lanczos-resampling
 	```
 
 ## Run DashGaussian
