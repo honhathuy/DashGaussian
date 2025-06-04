@@ -1,3 +1,5 @@
+# Copyright (c) 2025 Youyu Chen
+# SPDX-License-Identifier: MIT
 import torch
 
 from . import _C

@@ -1,3 +1,7 @@
+/*
+Copyright (c) 2025 Youyu Chen
+SPDX-License-Identifier: MIT
+*/
 #include <torch/extension.h>
 #include "cuda_lanczos/lanczos.h"
 

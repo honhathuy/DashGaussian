@@ -1,3 +1,7 @@
+/*
+Copyright (c) 2025 Youyu Chen
+SPDX-License-Identifier: MIT
+*/
 #pragma once
 #include <torch/extension.h>
 
