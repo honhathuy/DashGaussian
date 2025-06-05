@@ -191,10 +191,13 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
 
                 if iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0:
                     size_threshold = 20 if iteration > opt.opacity_reset_interval else None
+                    # Apply DashGaussian primitive scheduler to control densification.
                     densify_rate = scheduler.get_densify_rate(iteration, gaussians.get_xyz.shape[0], render_scale)
                     momentum_add = gaussians.prune_and_densify(opt.densify_grad_threshold, 0.005, scene.cameras_extent, 
                                                                size_threshold, radii, densify_rate=densify_rate)
+                    # Update max_n_gaussian
                     scheduler.update_momentum(momentum_add)
+                    # Update render scale based on the DashGaussian resolution scheduler. 
                     render_scale = scheduler.get_res_scale(iteration)
                 
                 if iteration % opt.opacity_reset_interval == 0 or (dataset.white_background and iteration == opt.densify_from_iter):

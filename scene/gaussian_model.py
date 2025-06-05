@@ -527,12 +527,6 @@ class GaussianModel:
         # Prune Gaussian primitives first. 
         self.tmp_radii = radii
         prune_mask = (self.get_opacity < min_opacity).squeeze()
-        if max_screen_size:
-            # big_points_vs = self.max_radii2D > max_screen_size
-            # big_points_ws = self.get_scaling.max(dim=1).values > 0.1 * extent
-            # big_points_vs = torch.zeros_like(big_points_ws)
-            # prune_mask = torch.logical_or(torch.logical_or(prune_mask, big_points_vs), big_points_ws)
-            pass
         self.prune_points(prune_mask)
 
         # Calculate the number of Gaussians to densify.
