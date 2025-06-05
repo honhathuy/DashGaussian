@@ -32,8 +32,8 @@ bash scripts/full_eval.sh
 ### Running Options
 In ```full_eval.py```, you can set, 
 * ```--dash``` Enable DashGaussian.
-* ```--fast``` Using the Sparse Adam optimizer. 
-* ```--preset_upperbound``` Set the primitive number upperbound manually for DashGaussian and disable the momentum-based primitive upperbound budgeting method. 
+* ```--fast``` Use the Sparse Adam optimizer. 
+* ```--preset_upperbound``` Set the primitive number upperbound manually for DashGaussian and disable the momentum-based primitive upperbound budgeting method. This option is disabled by default.
 
 ### Plug DashGaussian into Other 3DGS Backbones
 This repository is an example to plug DashGaussian into 3DGS backbones. 

@@ -1,4 +1,4 @@
-name: gaussian_splatting
+name: DashGaussian
 channels:
   - pytorch
   - conda-forge
