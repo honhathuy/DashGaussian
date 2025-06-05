@@ -6,15 +6,15 @@ db_path=data/tandt_db/db
 python full_eval.py -m360 ${m360_path} -tat ${tnt_path} -db ${db_path} \
 	--output_path output/official_fast \
 	--gpu ${GPU} --fast
-# DashGaussian with SparseAdam optimizer
+# Vanilla 3DGS + DashGaussian with SparseAdam optimizer
 python full_eval.py -m360 ${m360_path} -tat ${tnt_path} -db ${db_path} \
 	--output_path output/official_fast_dash \
 	--gpu ${GPU} --fast --dash 
 # Vanilla 3DGS with Adam optimizer
 python full_eval.py -m360 ${m360_path} -tat ${tnt_path} -db ${db_path} \
-	--output_path output/official_fast \
+	--output_path output/official \
 	--gpu ${GPU}
-# DashGaussian with Adam optimizer
+# Vanilla 3DGS + DashGaussian with Adam optimizer
 python full_eval.py -m360 ${m360_path} -tat ${tnt_path} -db ${db_path} \
-	--output_path output/official_fast_dash \
+	--output_path output/official_dash \
 	--gpu ${GPU} --dash 
