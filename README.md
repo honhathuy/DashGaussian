@@ -16,7 +16,7 @@ To prepare the environment,
 2. Follow [3DGS](https://github.com/graphdeco-inria/gaussian-splatting) to install dependencies. 
 
 	Please notice, that the ```diff-gaussian-rasterization``` module contained in this repository has already been switched to the ```3dgs-accel``` branch for efficient backward computation.
-3. Install our Lanczos-resampling implementation for downsampling images. 
+3. Install our Lanczos-resampling implementation for anti-aliased image downsampling. 
 	```
 	pip install submodules/lanczos-resampling
 	```
@@ -48,7 +48,7 @@ The average of rendering quality metrics, number of Gaussian primitives in the o
 | 3DGS | Adam | 27.51 | 0.8159 | 0.2149 | 2.73M | 12.70 |
 | 3DGS-Dash | Adam | 27.38 | 0.8080 | 0.2316 | 2.26M | 6.96 | 
 | 3DGS-fast | Sparse Adam | 27.33 | 0.8102 | 0.2240 | 2.46M | 7.91 | 
-| 3DGS-fast-Dash | Sparse Adam | 27.32 | 0.8018 | 0.2415 | 2.06M | 7.29 |
+| 3DGS-fast-Dash | Sparse Adam | 27.37 | 0.8041 | 0.2391 | 2.06M | 4.54 |
 
 ### Deep-Blending Dataset
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
