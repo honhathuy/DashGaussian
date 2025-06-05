@@ -37,6 +37,7 @@ In ```full_eval.py```, you can set,
 
 ## Results
 The following experiment results are produced with a single NVIDIA RTX 3090 GPU.
+The average of rendering quality metrics, number of Gaussian primitives in the optimized 3DGS model, and training time, are reported. 
 ### Mipnerf-360 Dataset
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
