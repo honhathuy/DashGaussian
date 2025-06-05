@@ -42,7 +42,7 @@ Search keyword ```DashGaussian``` within the project, you can find all code piec
 ## Results
 The following experiment results are produced with a personal NVIDIA RTX 4090 GPU.
 The average of rendering quality metrics, number of Gaussian primitives in the optimized 3DGS model, and training time, are reported. 
-### Mipnerf-360 Dataset
+### [Mipnerf-360 Dataset](https://jonbarron.info/mipnerf360/)
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 27.51 | 0.8159 | 0.2149 | 2.73M | 12.70 |
@@ -50,7 +50,7 @@ The average of rendering quality metrics, number of Gaussian primitives in the o
 | 3DGS-fast | Sparse Adam | 27.33 | 0.8102 | 0.2240 | 2.46M | 7.91 | 
 | 3DGS-fast-Dash | Sparse Adam | 27.37 | 0.8041 | 0.2391 | 2.06M | 4.54 |
 
-### Deep-Blending Dataset
+### [Deep-Blending Dataset](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip)
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 29.83 | 0.9069 | 0.2377 | 2.48M | 10.74 |
@@ -58,7 +58,7 @@ The average of rendering quality metrics, number of Gaussian primitives in the o
 | 3DGS-fast | Sparse Adam | 29.48 | 0.9068 | 0.2461 | 2.31M | 6.71 | 
 | 3DGS-fast-Dash | Sparse Adam | 29.76 | 0.9046 | 0.2539 | 1.64M | 2.67 |
 
-### Tanks&Temple Dataset
+### [Tanks&Temple Dataset](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip)
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 23.73 | 0.8526 | 0.1694 | 1.57M | 8.04 |
