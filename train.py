@@ -203,7 +203,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
                 torch.save((gaussians.capture(), iteration), scene.model_path + "/chkpnt" + str(iteration) + ".pth")
     
     with open(os.path.join(scene.model_path, "TRAIN_INFO"), "w+") as f:
-        f.write("Training Time: {:.2f} seconds\n".format(total_time))
+        f.write("Training Time: {:.2f} seconds, {:.2f} minutes\n".format(total_time, total_time / 60.))
         f.write("GS Number: {}\n".format(gaussians.get_xyz.shape[0]))
 
 def prepare_output_and_logger(args):    
