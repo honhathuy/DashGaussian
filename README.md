@@ -4,7 +4,9 @@
 The implementation of **DashGaussian: Optimizing 3D Gaussian Splatting in 200 Seconds**, a powerful 3DGS training acceleration method. Accepted by CVPR 2025 (highlight).
 
 In this repository, we show how to plug DashGaussian into [the up-to-date 3DGS implementation](https://github.com/graphdeco-inria/gaussian-splatting). 
-To notice, the official implementation of 3DGS has been updating since the paper of DashGaussian is published, so the reproduced results from this repository can be different from that reported in the paper.
+
+**To notice**, the official implementation of 3DGS has been updating since the paper of DashGaussian is published, so the reproduced results from this repository can be different from that reported in the paper.
+We plan to provide more examples for DashGaussian beyond vanilla 3DGS in the near future. 
 
 ## Environment Setup
 To prepare the environment, 
