@@ -5,8 +5,8 @@ The implementation of **DashGaussian: Optimizing 3D Gaussian Splatting in 200 Se
 
 In this repository, we show how to plug DashGaussian into [the up-to-date 3DGS implementation](https://github.com/graphdeco-inria/gaussian-splatting). 
 
-## Update Log
-* 2025.08.16 : A bug in reproduction is fixed. Now DashGaussian works correctly to boost the optimization speed while improving the rendering quality. 
+## Update History
+* 2025.08.16 : A bug in reproduction is fixed. Now DashGaussian works correctly to boost the optimization speed of 3DGS while improving the rendering quality. 
 
 ## Environment Setup
 To prepare the environment, 
