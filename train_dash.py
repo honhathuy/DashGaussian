@@ -12,7 +12,6 @@ from utils.image_utils import psnr
 from argparse import ArgumentParser, Namespace
 from arguments import ModelParams, PipelineParams, OptimizationParams
 from utils.schedule_utils import TrainingScheduler
-from FastLanczos import lanczos_resample
 try:
     from torch.utils.tensorboard import SummaryWriter
     TENSORBOARD_FOUND = True
@@ -114,7 +113,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
         # Rescale GT image for DashGaussian
         gt_image = viewpoint_cam.original_image.cuda()
         if render_scale > 1:
-            gt_image = lanczos_resample(gt_image.permute(1, 2, 0), scale_factor=render_scale).permute(2, 0, 1)
+            gt_image = torch.nn.functional.interpolate(gt_image[None], scale_factor=1/render_scale, mode="bilinear", 
+                                                       recompute_scale_factor=True, antialias=True)[0]
         render_pkg = render(viewpoint_cam, gaussians, pipe, bg, use_trained_exp=dataset.train_test_exp, separate_sh=SPARSE_ADAM_AVAILABLE, render_size=gt_image.shape[-2:])
         image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
 

@@ -4,7 +4,9 @@
 The implementation of **DashGaussian: Optimizing 3D Gaussian Splatting in 200 Seconds**, a powerful 3DGS training acceleration method. Accepted by CVPR 2025 (highlight).
 
 In this repository, we show how to plug DashGaussian into [the up-to-date 3DGS implementation](https://github.com/graphdeco-inria/gaussian-splatting). 
-To notice, the official implementation of 3DGS has been updating since the paper of DashGaussian is published, so the reproduced results from this repository can be different from that reported in the paper.
+
+## Update Log
+* 2025.08.16 : A bug in reproduction is fixed. Now DashGaussian works correctly to boost the optimization speed while improving the rendering quality. 
 
 ## Environment Setup
 To prepare the environment, 
@@ -16,10 +18,6 @@ To prepare the environment,
 2. Follow [3DGS](https://github.com/graphdeco-inria/gaussian-splatting) to install dependencies. 
 
 	Please notice, that the ```diff-gaussian-rasterization``` module contained in this repository has already been switched to the ```3dgs-accel``` branch for efficient backward computation.
-3. Install our Lanczos-resampling implementation for anti-aliased image downsampling. 
-	```
-	pip install submodules/lanczos-resampling
-	```
 
 ## Run DashGaussian
 
@@ -46,25 +44,25 @@ The average of rendering quality metrics, number of Gaussian primitives in the o
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 27.51 | 0.8159 | 0.2149 | 2.73M | 12.70 |
-| 3DGS-Dash | Adam | 27.38 | 0.8080 | 0.2316 | 2.26M | 6.96 | 
+| 3DGS-Dash | Adam | 27.70 | 0.8201 | 0.2140 | 2.42M | 6.21 | 
 | 3DGS-fast | Sparse Adam | 27.33 | 0.8102 | 0.2240 | 2.46M | 7.91 | 
-| 3DGS-fast-Dash | Sparse Adam | 27.37 | 0.8041 | 0.2391 | 2.06M | 4.54 |
+| 3DGS-fast-Dash | Sparse Adam | 27.66 | 0.8167 | 0.2202 | 2.23M | 3.69 |
 
 ### [Deep-Blending Dataset](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip)
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 29.83 | 0.9069 | 0.2377 | 2.48M | 10.74 |
-| 3DGS-Dash | Adam | 29.71 | 0.9061 | 0.2482 | 1.80M | 4.10 | 
+| 3DGS-Dash | Adam | 29.87 | 0.9061 | 0.2458 | 1.94M | 3.78 | 
 | 3DGS-fast | Sparse Adam | 29.48 | 0.9068 | 0.2461 | 2.31M | 6.71 | 
-| 3DGS-fast-Dash | Sparse Adam | 29.76 | 0.9046 | 0.2539 | 1.64M | 2.67 |
+| 3DGS-fast-Dash | Sparse Adam | 30.14 | 0.9085 | 0.2477 | 1.94M | 2.31 |
 
 ### [Tanks&Temple Dataset](https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/datasets/input/tandt_db.zip)
 |  Method | Optimizer | PSNR | SSIM | LPIPS | N_GS | Time (min) |
 |-----|-----|-----|-----|-----|-----|-----|
 | 3DGS | Adam | 23.73 | 0.8526 | 0.1694 | 1.57M | 8.04 |
-| 3DGS-Dash | Adam | 24.01 | 0.8502 | 0.1838 | 1.16M | 4.29 | 
+| 3DGS-Dash | Adam | 24.01 | 0.8514 | 0.1789 | 1.20M | 3.88 | 
 | 3DGS-fast | Sparse Adam | 23.78 | 0.8502 | 0.1741 | 1.53M | 6.11 | 
-| 3DGS-fast-Dash | Sparse Adam | 24.00 | 0.8499 | 0.1856 | 1.14M | 3.15 |
+| 3DGS-fast-Dash | Sparse Adam | 24.02 | 0.8519 | 0.1798 | 1.20M | 2.83 |
 
 ## Citation
 ```

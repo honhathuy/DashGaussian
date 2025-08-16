@@ -63,7 +63,7 @@ def get_expon_lr_func(
     LR scheduler for DashGaussian, not decay positional learning rate until reached the maximum resolution.
     '''
     def helper_dashgaussian(step):
-        if step < decay_from_iter or (lr_init == 0.0 and lr_final == 0.0):
+        if step < 0 or (lr_init == 0.0 and lr_final == 0.0):
             # Disable this parameter
             return 0.0
         t = np.clip((step - decay_from_iter) / (max_steps - decay_from_iter), 0, 1)
