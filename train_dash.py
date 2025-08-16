@@ -86,8 +86,6 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             except Exception as e:
                 network_gui.conn = None
 
-        torch.cuda.empty_cache()
-
         iter_start.record()
 
         gaussians.update_learning_rate(iteration)
