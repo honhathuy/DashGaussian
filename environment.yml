@@ -16,6 +16,6 @@ dependencies:
     - submodules/diff-gaussian-rasterization
     - submodules/simple-knn
     - submodules/fused-ssim
-    - submodules/FastLanczos
+    - submodules/lanczos-resampling
     - opencv-python
     - joblib
