@@ -91,6 +91,14 @@ class TrainingScheduler():
 		else:
 			raise NotImplementedError("Densify mode '{}' is not implemented.".format(self.densify_mode))
 	
+	def get_next_n_gaussian(self, iteration, cur_n_gaussian, cur_scale=None):
+		assert cur_scale is not None
+		if self.densification_interval + iteration < self.increase_reso_until:
+			next_n_gaussian = int((self.max_n_gaussian - self.init_n_gaussian) / cur_scale**(2 - iteration / self.densify_until_iter)) + self.init_n_gaussian
+		else:
+			next_n_gaussian = self.max_n_gaussian
+		return min(next_n_gaussian, cur_n_gaussian)
+	
 	def lr_decay_from_iter(self):
 		if self.resolution_mode == "const":
 			return 1

@@ -70,8 +70,10 @@ class PipelineParams(ParamGroup):
         self.debug = False
         self.antialiasing = False
         # DashGaussian parameters
-        self.resolution_mode = "const"
-        self.densify_mode = "free"
+        # self.resolution_mode = "const"
+        # self.densify_mode = "free"
+        self.resolution_mode = "freq"
+        self.densify_mode = "freq"
         self.max_n_gaussian = -1
         super().__init__(parser, "Pipeline Parameters")
 

@@ -15,6 +15,7 @@ from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotati
 from torch import nn
 import os
 import json
+import kornia
 from utils.system_utils import mkdir_p
 from plyfile import PlyData, PlyElement
 from utils.sh_utils import RGB2SH
@@ -64,6 +65,8 @@ class GaussianModel:
         self.percent_dense = 0
         self.spatial_lr_scale = 0
         self.setup_functions()
+        self.tmp_radii = None
+        self.sh_degree = sh_degree
 
     def capture(self):
         return (
@@ -361,7 +364,8 @@ class GaussianModel:
 
         self.denom = self.denom[valid_points_mask]
         self.max_radii2D = self.max_radii2D[valid_points_mask]
-        self.tmp_radii = self.tmp_radii[valid_points_mask]
+        if self.tmp_radii is not None:
+            self.tmp_radii = self.tmp_radii[valid_points_mask]
 
     def cat_tensors_to_optimizer(self, tensors_dict):
         optimizable_tensors = {}
@@ -401,7 +405,8 @@ class GaussianModel:
         self._scaling = optimizable_tensors["scaling"]
         self._rotation = optimizable_tensors["rotation"]
 
-        self.tmp_radii = torch.cat((self.tmp_radii, new_tmp_radii))
+        if new_tmp_radii is not None:
+            self.tmp_radii = torch.cat((self.tmp_radii, new_tmp_radii))
         self.xyz_gradient_accum = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         self.denom = torch.zeros((self.get_xyz.shape[0], 1), device="cuda")
         self.max_radii2D = torch.zeros((self.get_xyz.shape[0]), device="cuda")
@@ -546,3 +551,127 @@ class GaussianModel:
     def add_densification_stats(self, viewspace_point_tensor, update_filter):
         self.xyz_gradient_accum[update_filter] += torch.norm(viewspace_point_tensor.grad[update_filter,:2], dim=-1, keepdim=True)
         self.denom[update_filter] += 1
+    
+    def spawn_primitives_from_depth(
+        self,
+        input_image,          # The new, high-resolution color image [H, W, 3]
+        rendered_image,       # The image rendered from the current model's state [H, W, 3]
+        raw_depth_map,        # The raw, unscaled depth map [H, W]
+        global_depth_scale,   # The global scale factor
+        camera,               # Camera object with intrinsics and extrinsics
+        iteration,          # New argument
+        max_iterations,     # New argument
+        render_scale,
+        min_opacity=0.005,
+        device="cuda"
+    ):
+        """
+        Spawns and adds new Gaussian primitives to the model using direct sampling.
+        """
+        prune_mask = (self.get_opacity < min_opacity).squeeze()
+        self.prune_points(prune_mask)
+        
+        # Ensure all tensors are on the correct device
+        input_image = input_image.to(device)
+        rendered_image = rendered_image.to(device)
+        raw_depth_map = raw_depth_map.to(device)
+
+        # --- 1. Probability Sampling ---
+        input_gray = kornia.color.rgb_to_grayscale(input_image.unsqueeze(0))
+        rendered_gray = kornia.color.rgb_to_grayscale(rendered_image.unsqueeze(0))
+        
+        p_l = kornia.filters.gaussian_blur2d(input_gray, kernel_size=(5, 5), sigma=(1, 1))
+        p_l = kornia.filters.laplacian(p_l, kernel_size=5).squeeze().abs()
+        p_l = torch.clamp(p_l, max=1.0)
+        p_tilde = kornia.filters.gaussian_blur2d(rendered_gray, kernel_size=(5, 5), sigma=(1, 1))
+        p_tilde = kornia.filters.laplacian(p_tilde, kernel_size=5).squeeze().abs()
+        p_tilde = torch.clamp(p_tilde, max=1.0)
+        
+        p_s = torch.clamp(p_l - p_tilde, min=0.0)
+        # sample_mask = p_s > torch.rand_like(p_s) * 0.9 + 0.1 # Add a base 10% chance
+        progress = iteration / max_iterations
+        # Make the random threshold decrease as training progresses.
+        # At the start (progress=0), random numbers are in [0.1, 0.5].
+        # At the end (progress=1), random numbers are in [0.01, 0.05].
+        # This makes it much easier to spawn primitives later on.
+        # upper_bound = max(0.2 - progress * 0.18, 0.02) # Starts at 0.2, ends at 0.02
+        # lower_bound = max(0.1 - progress * 0.09, 0.01) # Starts at 0.1, ends at 0.01
+        upper_bound = 0.2
+        lower_bound = 0.01
+
+        random_threshold = torch.rand_like(p_s) * (upper_bound - lower_bound) + lower_bound
+        sample_mask = p_s > random_threshold
+
+        y_coords, x_coords = torch.where(sample_mask)
+        if len(y_coords) == 0:
+            return # Nothing to add
+
+        # --- 2. Unproject to 3D and Transform ---
+        scaled_depth_map = raw_depth_map * global_depth_scale
+        depth_values = scaled_depth_map[y_coords, x_coords]
+
+        image_height = camera.image_height
+        image_width = camera.image_width
+        # The principal point is the center of the image
+        cx = image_width / 2.0
+        cy = image_height / 2.0
+        fovx_tensor = torch.tensor(camera.FoVx, device=device)
+        fovy_tensor = torch.tensor(camera.FoVy, device=device)
+        fx = image_width / (2.0 * torch.tan(fovx_tensor * 0.5))
+        fy = image_height / (2.0 * torch.tan(fovy_tensor * 0.5))
+        # Unproject from 2D pixels to 3D points in camera coordinates
+        x_cam = (x_coords - cx) * depth_values / fx
+        y_cam = (y_coords - cy) * depth_values / fy
+        pts_camera_frame = torch.stack([x_cam, y_cam, depth_values], dim=-1)
+
+        # Transform from camera coordinates to world coordinates
+        # Assumes camera.R and camera.T are Cam-to-World transformation
+        R = torch.from_numpy(camera.R).float().to(device)
+        T = torch.from_numpy(camera.T).float().to(device)
+        new_xyz = pts_camera_frame @ R + T
+
+        # --- 3. Initialize Primitive Attributes ---
+        # Scale
+        p_l_sampled = p_l[y_coords, x_coords]
+        s_scalar = (depth_values * (1.0 / (2 * torch.sqrt(p_l_sampled) + 1e-6))) / fx
+        new_scaling = torch.log(s_scalar).unsqueeze(1).repeat(1, 3) # Use log scale as often required
+
+        # Rotation (initialize as identity)
+        new_rotation = torch.zeros((len(new_xyz), 4), device=device)
+        new_rotation[:, 0] = 1 # Identity quaternion
+
+        # Opacity (initialize with a default value)
+        new_opacity = torch.logit(torch.full((len(new_xyz), 1), 0.7, device=device))
+
+        # Color (from input image)
+        new_rgb = input_image.permute(1, 2, 0)[y_coords, x_coords]
+        # Convert to spherical harmonics (DC term)
+        new_features_dc = 0.28209 * (new_rgb - 0.5)
+        # Extra SH features (initialize as zeros)
+        new_features_rest = torch.zeros((len(new_xyz), (self.sh_degree + 1)**2 - 1, 3), device=device)
+
+        new_primitives = {
+            "xyz": new_xyz,
+            "scaling": new_scaling,
+            "rotation": new_rotation,
+            "opacity": new_opacity,
+            "features_dc": new_features_dc.unsqueeze(1),
+            "features_rest": new_features_rest
+        }
+
+        self._xyz = torch.cat([self._xyz, new_primitives["xyz"]], dim=0)
+        self._scaling = torch.cat([self._scaling, new_primitives["scaling"]], dim=0)
+        self._rotation = torch.cat([self._rotation, new_primitives["rotation"]], dim=0)
+        self._opacity = torch.cat([self._opacity, new_primitives["opacity"]], dim=0)
+        self._features_dc = torch.cat([self._features_dc, new_primitives["features_dc"]], dim=0)
+        self._features_rest = torch.cat([self._features_rest, new_primitives["features_rest"]], dim=0)
+
+        self.densification_postfix(
+            new_primitives["xyz"],
+            new_primitives["features_dc"],
+            new_primitives["features_rest"],
+            new_primitives["opacity"],
+            new_primitives["scaling"],
+            new_primitives["rotation"],
+            None
+        )
