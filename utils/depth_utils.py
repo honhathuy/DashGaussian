@@ -2,7 +2,7 @@ from tqdm import tqdm
 import sys
 import os
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), 'utils')))
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from Depth_Anything_V2.depth_anything_v2.dpt import DepthAnythingV2
 import torch
