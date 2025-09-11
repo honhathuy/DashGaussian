@@ -76,7 +76,7 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
     progress_bar = tqdm(range(first_iter, opt.iterations), desc="Training progress")
     first_iter += 1
     for iteration in range(first_iter, opt.iterations + 1):
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
 
         iter_start.record()
 
@@ -112,7 +112,8 @@ def training(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoi
             depth_map = -min_pool(-depth_tensor)
             depth_map = depth_map.squeeze()
             # resize ground-truth image
-            gt_image = lanczos_resample(gt_image.permute(1, 2, 0), scale_factor=render_scale).permute(2, 0, 1)
+            gt_image = torch.nn.functional.interpolate(gt_image[None], scale_factor=1/render_scale, mode="bilinear", 
+                                                       recompute_scale_factor=True, antialias=True)[0]
         render_pkg = render(viewpoint_cam, gaussians, pipe, bg, use_trained_exp=dataset.train_test_exp, separate_sh=SPARSE_ADAM_AVAILABLE, render_size=gt_image.shape[-2:])
         image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
 
